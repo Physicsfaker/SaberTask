@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SaberTask
 {
-    public class ListNode
+    public class ListNode //как я понял его тоже нужно было реализовывать без сторонних библиотек
     {
         public ListNode Previous;
         public ListNode Next;

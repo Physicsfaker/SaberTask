@@ -25,7 +25,6 @@ namespace SaberTask
             //listOut.addToTail("two - 2");
             //listOut.addToTail("three - 3");
 
-
             using (MemoryStream str = new MemoryStream())
             {
                 ShowObject(listOut);
@@ -56,7 +55,6 @@ namespace SaberTask
         static private void ShowObject(ListRandom l) 
         {
             Console.WriteLine($"\n************START************");
-            Console.WriteLine($"Obj GUID: " + l.GetType().GUID);
             Console.WriteLine($"\nCount of list elm-ts: {l.Count}\n");
             var x = l.Head;
             int count = 1;
@@ -68,7 +66,7 @@ namespace SaberTask
                 count++;
             }
             Console.WriteLine($"");
-            Console.WriteLine($"*************END*************");
+            Console.WriteLine($"*************END*************\n\n");
         }
     }
 }

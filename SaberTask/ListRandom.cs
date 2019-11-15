@@ -69,18 +69,20 @@ namespace SaberTask
             return arr[rand.Next(0, arr.Length)];
         }
 
-        public void Serialize(Stream s) // выходной поток   // Count + node1.size + node1.data +  node2.size + node2.data... ...+ node1.randomNum + node2.randomNum + node3.randomNum...
+        /* Как выглядит байтовая карта после сирилизации:
+         * NodesCount + node1.Data.size + node1.data +  node2.Data.size + node2.data... ...+ node1.randomNum + node2.randomNum + node3.randomNum...*/
+        public void Serialize(Stream s) // выходной поток   
         {
             if (this.Head == null || this.Tail == null) return;
             Queue<byte[]> allList = new Queue<byte[]>();
             byte[] listPart;
 
-            listPart = BitConverter.GetBytes(Count);        // первые 4 байта будет количество элементов списка
+            listPart = BitConverter.GetBytes(Count);        // первые 4 байта будет количество элементов списка (NodesCount)
             if (BitConverter.IsLittleEndian) Array.Reverse(listPart);
-            allList.Enqueue(listPart);
+            allList.Enqueue(listPart); // пушим в очередь для записи
 
 
-            ListNode[] arr = new ListNode[Count];
+            ListNode[] arr = new ListNode[Count]; // собираем массив элементов списка, так проще работать в дальнейшем 
             ListNode buf = Head;
             int number = 0;
             while(true)
@@ -95,11 +97,11 @@ namespace SaberTask
 
             foreach (ListNode item in arr)
             {
-                listPart = Encoding.ASCII.GetBytes(item.Data);
+                listPart = Encoding.ASCII.GetBytes(item.Data);              // получаем dat-у элемента в байтовом представлении 
+                if (BitConverter.IsLittleEndian) Array.Reverse(listPart); 
+                sizeBuf = BitConverter.GetBytes(listPart.Length);            // получаем размер dat-ы элемента 
                 if (BitConverter.IsLittleEndian) Array.Reverse(listPart);
-                sizeBuf = BitConverter.GetBytes(listPart.Length);
-                if (BitConverter.IsLittleEndian) Array.Reverse(listPart);
-                allList.Enqueue(sizeBuf);
+                allList.Enqueue(sizeBuf);           // пушим в очередь для записи
                 allList.Enqueue(listPart);
             }
 
@@ -109,9 +111,10 @@ namespace SaberTask
                 {
                     if (arr[i].Random == arr[k])
                     {
-                        listPart = BitConverter.GetBytes(k);        // потом поочередно запоминаем на какой элемент ссылается очередной объект из списка
+                        listPart = BitConverter.GetBytes(k);        // порядок пуша в очередь соответствует порядку элементу списка от головы. каждый такой пуш содержит порядковый номер элемента
+                                                                    // списка на который ссылается в поле Random
                         if (BitConverter.IsLittleEndian) Array.Reverse(listPart);
-                        allList.Enqueue(listPart);
+                        allList.Enqueue(listPart);          // пушим в очередь для записи
                         break;
                     }
                 }
@@ -121,7 +124,8 @@ namespace SaberTask
             Console.WriteLine("Serializ Done!");
         }
 
-        public void Deserialize(Stream s) // входной поток
+        //тут все тоже самое только наооборот -  собираем обект по байтовой карте 
+        public void Deserialize(Stream s) // входной поток 
         {
             byte[] obj = new byte[4];
             s.Seek(0, SeekOrigin.Begin);
